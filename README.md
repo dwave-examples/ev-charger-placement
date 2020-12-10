@@ -10,17 +10,19 @@ To run the demo, type the command:
 
 The program will construct a 14x15 grid representation of a city, and randomly place 3 POIs and 4 current charging station locations. Using the BQM hybrid solver, locations for 2 new charging stations will be selected.
 
-After the new charging station locations have been selected, an image is created. This image shows the current map with existing charging locations shown in red and POIs denoted by P (left figure), as well as a future map with the future charging station locations colored in blue (right figutre).
+After the new charging station locations have been selected, an image is created. This image shows the current map with existing charging locations shown in red and POIs denoted by P (left figure), as well as a future map with the future charging station locations colored in blue (right figutre). This image is saved as ```map.png```.
+
+Finally, the new charging locations within the grid are printed on the command line for the user.
 
 ## Building the BQM
 
-The charging station location problem consists of 4 components over a set of binary variables that represent each potential new charging station location. 
+The charging station location problem consists of 4 components over a set of binary variables that represent each potential new charging station location.
 
 **Note**: All references to distance in these parameters refer to Manhattan or driving distance on the city grid, as opposed to Euclidean or 'as the crow flies' distance.
 
 ### Minimize distance to POIs
 
-For each potential new charging station location, we compute the average distance to all POIs on the map. Using this value as a linear bias on each binary variable, our program will prefer locations that are (on average) close to the POIs. 
+For each potential new charging station location, we compute the average distance to all POIs on the map. Using this value as a linear bias on each binary variable, our program will prefer locations that are (on average) close to the POIs.
 
 ### Maximize distance to existing charging stations
 

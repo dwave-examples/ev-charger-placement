@@ -4,8 +4,8 @@ import numpy as np
 from dwave.system import LeapHybridSampler
 from dimod import AdjVectorBQM
 
-# import matplotlib
-# matplotlib.use("agg")    # must select backend before importing pyplot
+import matplotlib
+matplotlib.use("agg")    # must select backend before importing pyplot
 import matplotlib.pyplot as plt
 
 # Build large grid graph for city (default to square, provide options for triangular, hexagonal)
@@ -110,4 +110,4 @@ nx.draw_networkx(poi_graph, ax=ax2, pos=pos, with_labels=True, labels=POI_labels
 nx.draw_networkx(cs_graph, ax=ax2, pos=pos, with_labels=False, node_color='r', font_color='k')
 nx.draw_networkx(poi_cs_graph, ax=ax2, pos=pos, with_labels=True, labels=poi_cs_labels,  node_color='r', font_color='w')
 nx.draw_networkx(new_cs_graph, ax=ax2, pos=pos, with_labels=False, node_color='#00b4d9', font_color='w')
-plt.show()
+plt.savefig("map.png")
