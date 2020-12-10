@@ -33,8 +33,8 @@ gamma3= len(G.nodes())/3
 gamma4 = len(G.nodes())**2
 
 # Identify a fixed set of points of interest
-num_POI = 3
-POIs = random.sample(nodes, k=num_POI)
+num_poi = 3
+pois = random.sample(nodes, k=num_poi)
 
 # Identify a fixed set of current charging locations
 num_cs = 4
@@ -43,9 +43,9 @@ charging_stations = random.sample(nodes, k=num_cs)
 # Number of new charging stations to place
 num_new_cs = 2
 
-poi_cs_list = set(POIs)-(set(POIs) - set(charging_stations))
+poi_cs_list = set(pois)-(set(pois) - set(charging_stations))
 poi_cs_graph = G.subgraph(poi_cs_list)
-poi_graph = G.subgraph(POIs)
+poi_graph = G.subgraph(pois)
 cs_graph = G.subgraph(charging_stations)
 
 
@@ -62,7 +62,7 @@ for i in range(len(potential_new_cs_nodes)):
     # Compute average distance to POIs from this node
     ave_dist = 0
     cand_loc = potential_new_cs_nodes[i]
-    for loc in POIs:
+    for loc in pois:
         manhattan_dist = cand_loc[0]**2-2*cand_loc[0]*loc[0]+loc[0]**2+cand_loc[1]**2-2*cand_loc[1]*loc[1]+loc[1]**2
         ave_dist += manhattan_dist/num_cs
     linear[i] += ave_dist*gamma1
@@ -74,7 +74,7 @@ for i in range(len(potential_new_cs_nodes)):
     cand_loc = potential_new_cs_nodes[i]
     for loc in charging_stations:
         manhattan_dist = -1*cand_loc[0]**2+2*cand_loc[0]*loc[0]-loc[0]**2-cand_loc[1]**2+2*cand_loc[1]*loc[1]-loc[1]**2
-        ave_dist += manhattan_dist/num_POI
+        ave_dist += manhattan_dist/num_poi
     linear[i] += ave_dist*gamma2
 
 # Constraint 3: Max distance to other new charging location
@@ -107,7 +107,7 @@ new_cs_graph = G.subgraph(new_charging_nodes)
 #   - Nodes marked 'P': POI locations
 #   - Blue nodes: new charger locations
 
-POI_labels = {x: 'P' for x in poi_graph.nodes()}
+poi_labels = {x: 'P' for x in poi_graph.nodes()}
 poi_cs_labels = {x: 'P' for x in poi_graph.nodes()}
 
 fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -115,12 +115,12 @@ fig.suptitle('New EV Charger Locations')
 
 pos = {x: [x[0],x[1]] for x in G.nodes()}
 nx.draw_networkx(G, ax=ax1, pos=pos, with_labels=False, node_color='k', font_color='w')
-nx.draw_networkx(poi_graph, ax=ax1, pos=pos, with_labels=True, labels=POI_labels, node_color='k', font_color='w')
+nx.draw_networkx(poi_graph, ax=ax1, pos=pos, with_labels=True, labels=poi_labels, node_color='k', font_color='w')
 nx.draw_networkx(cs_graph, ax=ax1, pos=pos, with_labels=False, node_color='r', font_color='k')
 nx.draw_networkx(poi_cs_graph, ax=ax1, pos=pos, with_labels=True, labels=poi_cs_labels, node_color='r', font_color='w')
 
 nx.draw_networkx(G, ax=ax2, pos=pos, with_labels=False, node_color='k', font_color='w')
-nx.draw_networkx(poi_graph, ax=ax2, pos=pos, with_labels=True, labels=POI_labels,node_color='k', font_color='w')
+nx.draw_networkx(poi_graph, ax=ax2, pos=pos, with_labels=True, labels=poi_labels,node_color='k', font_color='w')
 nx.draw_networkx(cs_graph, ax=ax2, pos=pos, with_labels=False, node_color='r', font_color='k')
 nx.draw_networkx(poi_cs_graph, ax=ax2, pos=pos, with_labels=True, labels=poi_cs_labels,  node_color='r', font_color='w')
 nx.draw_networkx(new_cs_graph, ax=ax2, pos=pos, with_labels=False, node_color='#00b4d9', font_color='w')
