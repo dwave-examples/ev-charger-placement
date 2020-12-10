@@ -1,7 +1,8 @@
 import random
 import networkx as nx
-from collections import defaultdict
+import numpy as np
 from dwave.system import LeapHybridSampler
+from dimod import AdjVectorBQM
 
 # import matplotlib
 # matplotlib.use("agg")    # must select backend before importing pyplot
@@ -12,10 +13,10 @@ G = nx.grid_2d_graph(14,15)
 nodes = G.nodes()
 
 # Tunable parameters
-gamma1 = len(G.nodes())
-gamma2 = 5
-gamma2a= len(G.nodes())/2
-gamma3 = len(G.nodes())**2
+gamma1 = len(G.nodes())*2
+gamma2 = len(G.nodes())/3
+gamma3= len(G.nodes())/3
+gamma4 = len(G.nodes())**2
 
 # Identify a fixed set of points of interest
 num_POI = 3
@@ -38,7 +39,9 @@ cs_graph = G.subgraph(charging_stations)
 potential_new_cs_nodes = list(nodes - charging_stations)
 
 # Build BQM using adjVectors to find best new charging location s.t. min distance to POIs and max distance to existing charging locations
-Q = defaultdict(int)
+linear = np.zeros(len(potential_new_cs_nodes))
+quadratic = np.zeros((len(potential_new_cs_nodes),len(potential_new_cs_nodes)))
+vartype = 'BINARY'
 
 # Constraint 1: Min average distance to POIs
 for i in range(len(potential_new_cs_nodes)):
@@ -48,7 +51,7 @@ for i in range(len(potential_new_cs_nodes)):
     for loc in POIs:
         manhattan_dist = cand_loc[0]**2-2*cand_loc[0]*loc[0]+loc[0]**2+cand_loc[1]**2-2*cand_loc[1]*loc[1]+loc[1]**2
         ave_dist += manhattan_dist/num_cs
-    Q[(i,i)] += ave_dist*gamma1
+    linear[i] += ave_dist*gamma1
 
 # Constraint 2: Max distance to existing chargers
 for i in range(len(potential_new_cs_nodes)):
@@ -58,23 +61,27 @@ for i in range(len(potential_new_cs_nodes)):
     for loc in charging_stations:
         manhattan_dist = -1*cand_loc[0]**2+2*cand_loc[0]*loc[0]-loc[0]**2-cand_loc[1]**2+2*cand_loc[1]*loc[1]-loc[1]**2
         ave_dist += manhattan_dist/num_POI
-    Q[(i,i)] += ave_dist*gamma2
+    linear[i] += ave_dist*gamma2
 
+# Constraint 3: Max distance to other new charging location
 for i in range(len(potential_new_cs_nodes)):
     for j in range(i+1, len(potential_new_cs_nodes)):
         ai = potential_new_cs_nodes[i]
         aj = potential_new_cs_nodes[j]
-        Q[(i,j)] += -1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2 + 2*ai[1]*aj[1] - aj[1]**2*gamma2a
+        dist = -1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2 + 2*ai[1]*aj[1] - aj[1]**2*gamma3
+        quadratic[i,j] += dist
 
-# Constraint 3: Choose exactly E new charging locations
+# Constraint 4: Choose exactly E new charging locations
 for i in range(len(potential_new_cs_nodes)):
-    Q[(i,i)] += (1-2*num_new_cs)*gamma3
+    linear[i] += (1-2*num_new_cs)*gamma4
     for j in range(i+1, len(potential_new_cs_nodes)):
-        Q[(i,j)] += 2*gamma3
+        quadratic[i,j] += 2*gamma4
 
 # Run BQM on HSS
+bqm = AdjVectorBQM(linear, quadratic, vartype)
 sampler = LeapHybridSampler()
-sampleset = sampler.sample_qubo(Q)
+sampleset = sampler.sample(bqm)
+
 ss = sampleset.first.sample
 new_charging_nodes = [potential_new_cs_nodes[k] for k,v in ss.items() if v == 1]
 print("\nNew charging locations:", new_charging_nodes)
