@@ -39,3 +39,7 @@ Using a value of -3 as a linear bias for each binary variable and a value of 2 a
 ### Parameter tuning
 
 Each of these constraints is built into our BQM object with a coefficient (names all start with `gamma`).  This term gamma is known as a Lagrange parameter and can be used to weight the constraints against each other to accurately reflect the requirements of the problem. You may wish to adjust this parameter depending on your problem requirements and size. The value set here in this program was chosen to empirically work well as a starting point for problems of a wide-variety of sizes. For more information on setting this parameter, see D-Wave's [Problem Formulation Guide](https://www.dwavesys.com/practical-quantum-computing-developers).
+
+## Ocean Features
+
+This code example utilizes Ocean's ```AdjVectorBQM``` functionality. For large, real-world sized problems, using dictionaries to store the BQM biases can become quite slow. Using NumPy arrays instead allows Python to run quickly, and is much more efficient on large problems. The Ocean ```AdjVectorBQM``` functions allow the user to store biases as numpy arrays and load them quickly to build a BQM object, suitable for both quantum and hybrid solvers.
