@@ -20,7 +20,7 @@ solver, locations for 2 new charging stations will be selected.
 After the new charging station locations have been selected, an image is
 created. This image shows the current map with existing charging locations
 shown in red and POIs denoted by P (left figure), as well as a future map with
-the future charging station locations colored in blue (right figutre). This
+the future charging station locations colored in blue (right figure). This
 image is saved as ```map.png```.
 
 Finally, the new charging locations within the grid are printed on the command
