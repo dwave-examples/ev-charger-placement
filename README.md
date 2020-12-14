@@ -54,8 +54,7 @@ For the pair of new charging station locations, we would like to maximize the
 distance between them. To do this, we consider all possible pairs of locations
 and compute the distance between them.  Using the negative of this value as a
 quadratic bias on the product of the corresponding binary variables, our
-program will prefer locations that are far from the other new charging
-location.
+program will prefer locations that are far apart.
 
 ### Build exactly two new charging stations
 
