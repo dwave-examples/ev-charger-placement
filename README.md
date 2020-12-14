@@ -28,9 +28,9 @@ line for the user.
 
 ## Building the BQM
 
-The charging station location problem can be considered as a set of 4
-constraints (or objectives) over a set of binary variables that represent each
-potential new charging station location.
+This problem can be considered as a set of 4 independent constraints (or
+objectives) with binary variables that represent each potential new charging
+station location.
 
 ### Minimize distance to POIs
 
