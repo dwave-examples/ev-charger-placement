@@ -1,11 +1,11 @@
-# Electric Vehicle Charging Station Placement
+# Placement of Charging Stations
 
 Determining optimal locations to build new electric vehicle charging stations
 is a complex optimization problem.  Many factors should be taken into
 consideration, like existing charger locations, points of interest (POIs),
 quantity to build, etc. In this example, we take a look at how we might
-formulate this optimization problem to run using D-Wave's binary quadratic
-model (BQM) hybrid solver.
+formulate this optimization problem and solve it using D-Wave's binary
+quadratic model (BQM) hybrid solver.
 
 ## Usage
 
@@ -51,10 +51,12 @@ locations that are (on average) far from existing chargers.
 
 ### Maximize distance to other new charging stations
 
-For each pair of potential new charging station locations, we compute the
-distance between them.  Using the negative of this value as a quadratic bias on
-the product of the corresponding binary variables, our program will prefer
-locations that are far from other potential new charging locations.
+For the pair of new charging station locations, we would like to maximize the
+distance between them. To do this, we consider all possible pairs of locations
+and compute the distance between them.  Using the negative of this value as a
+quadratic bias on the product of the corresponding binary variables, our
+program will prefer locations that are far from the other new charging
+location.
 
 ### Build exactly two new charging stations
 
@@ -76,9 +78,10 @@ Guide](https://www.dwavesys.com/practical-quantum-computing-developers).
 
 ## Ocean Features
 
-This code example utilizes Ocean's ```AdjVectorBQM``` functionality. For large,
-real-world sized problems, using dictionaries to store the BQM biases can
-become quite slow. Using NumPy arrays instead allows Python to run quickly, and
-is much more efficient on large problems. The Ocean ```AdjVectorBQM```
+This code example utilizes Ocean's ```AdjVectorBQM``` functionality. For
+smaller problems we can use Python dictionaries to store a BQM. However, for
+large, real-world sized problems, using dictionaries to store the BQM biases
+can become quite slow. Using NumPy arrays instead allows Python to run quickly,
+and is much more efficient on large problems. The Ocean ```AdjVectorBQM```
 functions allow the user to store biases as numpy arrays and load them quickly
 to build a BQM object, suitable for both quantum and hybrid solvers.
