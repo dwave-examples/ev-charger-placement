@@ -28,12 +28,9 @@ line for the user.
 
 ## Building the BQM
 
-The charging station location problem consists of 4 components over a set of
-binary variables that represent each potential new charging station location.
-
-**Note**: All references to distance in these parameters refer to Manhattan or
-driving distance on the city grid, as opposed to Euclidean or 'as the crow
-flies' distance.
+The charging station location problem can be considered as a set of 4
+constraints (or objectives) over a set of binary variables that represent each
+potential new charging station location.
 
 ### Minimize distance to POIs
 

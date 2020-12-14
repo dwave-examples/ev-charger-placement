@@ -22,14 +22,14 @@ import matplotlib
 matplotlib.use("agg")    # must select backend before importing pyplot
 import matplotlib.pyplot as plt
 
-# Build large grid graph for city (default to square, provide options for triangular, hexagonal)
+# Build large grid graph for city
 G = nx.grid_2d_graph(14, 15)
 nodes = G.nodes()
 
 # Tunable parameters
 gamma1 = len(G.nodes()) * 2
 gamma2 = len(G.nodes()) / 3
-gamma3 = len(G.nodes()) / 3
+gamma3 = len(G.nodes()) / 2
 gamma4 = len(G.nodes()) ** 2
 
 # Identify a fixed set of points of interest
@@ -63,9 +63,9 @@ for i in range(len(potential_new_cs_nodes)):
     ave_dist = 0
     cand_loc = potential_new_cs_nodes[i]
     for loc in pois:
-        manhattan_dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2 
+        dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2 
                             + cand_loc[1]**2 - 2*cand_loc[1]*loc[1] + loc[1]**2)
-        ave_dist += manhattan_dist / num_cs
+        ave_dist += dist / num_cs
     linear[i] += ave_dist * gamma1
 
 # Constraint 2: Max distance to existing chargers
@@ -74,9 +74,9 @@ for i in range(len(potential_new_cs_nodes)):
     ave_dist = 0
     cand_loc = potential_new_cs_nodes[i]
     for loc in charging_stations:
-        manhattan_dist = (-1*cand_loc[0]**2 + 2*cand_loc[0]*loc[0] - loc[0]**2
+        dist = (-1*cand_loc[0]**2 + 2*cand_loc[0]*loc[0] - loc[0]**2
                             - cand_loc[1]**2 + 2*cand_loc[1]*loc[1] - loc[1]**2)
-        ave_dist += manhattan_dist / num_poi
+        ave_dist += dist / num_poi
     linear[i] += ave_dist * gamma2
 
 # Constraint 3: Max distance to other new charging location
@@ -85,8 +85,8 @@ for i in range(len(potential_new_cs_nodes)):
         ai = potential_new_cs_nodes[i]
         aj = potential_new_cs_nodes[j]
         dist = (-1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2 
-                + 2*ai[1]*aj[1] - aj[1]**2*gamma3)
-        quadratic[i,j] += dist
+                + 2*ai[1]*aj[1] - aj[1]**2)
+        quadratic[i,j] += dist * gamma3
 
 # Constraint 4: Choose exactly E new charging locations
 for i in range(len(potential_new_cs_nodes)):
