@@ -112,7 +112,6 @@ jobs:
     environment:
       PYTHON: 3.5.5
       HOMEBREW_NO_AUTO_UPDATE: 1
-      BASH_ENV: /Users/distiller/repo/.circleci/.bashrc_macOS
 
   #
   # Windows x64

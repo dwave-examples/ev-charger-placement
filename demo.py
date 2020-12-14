@@ -19,8 +19,11 @@ from dwave.system import LeapHybridSampler
 from dimod import AdjVectorBQM
 
 import matplotlib
-matplotlib.use("agg")    # must select backend before importing pyplot
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    matplotlib.use("agg")
+    import matplotlib.pyplot as plt
 
 # Build large grid graph for city
 G = nx.grid_2d_graph(14, 15)
