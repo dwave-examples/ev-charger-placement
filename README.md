@@ -60,7 +60,10 @@ program will prefer locations that are far apart.
 
 Using a value of -3 as a linear bias for each binary variable and a value of 2
 as a quadratic bias on each product of binary variables, we can encode a
-constraint to select exactly two new charging station locations.
+constraint to select exactly two new charging station locations. To see the
+full details of how constraints like this one are formulated, and where these
+values of -3 and +2 come from, see D-Wave's [Problem Formulation
+Guide](https://www.dwavesys.com/practical-quantum-computing-developers).
 
 ### Parameter tuning
 
