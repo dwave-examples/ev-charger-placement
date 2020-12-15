@@ -46,7 +46,9 @@ to the POIs.
 For each potential new charging station location, we compute the average
 distance to all existing charging locations on the map. Using the negative of
 this value as a linear bias on each binary variable, our program will prefer
-locations that are (on average) far from existing chargers.
+locations that are (on average) far from existing chargers. Note that this
+constraint could be replaced by an alternative one depending on the real world
+scenario for this problem.
 
 ### Maximize distance to other new charging stations
 
