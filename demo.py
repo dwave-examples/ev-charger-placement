@@ -34,6 +34,8 @@ args = parser.parse_args()
 
 if isinstance(args.seed, int):
     random.seed(args.seed)
+elif args.seed is None:
+    pass
 else:
     print("Seed must be an integer.")
     sys.exit(0)
