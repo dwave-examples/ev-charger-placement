@@ -26,7 +26,7 @@ image is saved as ```map.png```, as shown in the image below.
 ![Example output](readme_imgs/map.png "Example output")
 
 Finally, the new charging locations within the grid are printed on the command
-line for the user.
+line for the user, as well as some information on distances in the new map.
 
 ### Setting a random seed
 
