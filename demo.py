@@ -13,9 +13,11 @@
 # limitations under the License.
 
 import random
+import argparse
+import dimod
+import sys
 import networkx as nx
 import numpy as np
-import dimod
 from dwave.system import LeapHybridSampler
 
 import matplotlib
@@ -25,6 +27,17 @@ except ImportError:
     matplotlib.use("agg")
     import matplotlib.pyplot as plt
 
+# Read in user option for random seed
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--seed", help="set a random seed for scenario", type=int)
+args = parser.parse_args()
+
+if isinstance(args.seed, int):
+    random.seed(args.seed)
+else:
+    print("Seed must be an integer.")
+    sys.exit(0)
+
 # Build large grid graph for city
 G = nx.grid_2d_graph(14, 15)
 nodes = G.nodes()
@@ -32,7 +45,7 @@ nodes = G.nodes()
 # Tunable parameters
 gamma1 = len(G.nodes()) * 2
 gamma2 = len(G.nodes()) / 3
-gamma3 = len(G.nodes()) / 2
+gamma3 = len(G.nodes()) * 0.6
 gamma4 = len(G.nodes()) ** 2
 
 # Identify a fixed set of points of interest
@@ -96,10 +109,26 @@ bqm.update(dimod.generators.combinations(bqm.variables, num_new_cs, strength=gam
 sampler = LeapHybridSampler()
 sampleset = sampler.sample(bqm)
 
+# Process result and print information to command-line
+print("\nSolution returned: \n------------------")
 ss = sampleset.first.sample
 new_charging_nodes = [potential_new_cs_nodes[k] for k, v in ss.items() if v == 1]
-print("\nNew charging locations:", new_charging_nodes)
-new_cs_graph = G.subgraph(new_charging_nodes)
+print("\nNew charging locations:\t\t\t\t", new_charging_nodes)
+
+poi_ave_dist = [0,0]
+for loc in pois:
+    poi_ave_dist[0] += (1/num_poi)*(abs(new_charging_nodes[0][0]-loc[0])+abs(new_charging_nodes[0][1]-loc[1]))
+    poi_ave_dist[1] += (1/num_poi)*(abs(new_charging_nodes[1][0]-loc[0])+abs(new_charging_nodes[1][1]-loc[1]))
+print("Average distance to POIs:\t\t\t", poi_ave_dist)
+
+old_cs_ave_dist = [0,0]
+for loc in charging_stations:
+    old_cs_ave_dist[0] += (1/num_cs)*(abs(new_charging_nodes[0][0]-loc[0])+abs(new_charging_nodes[0][1]-loc[1]))
+    old_cs_ave_dist[1] += (1/num_cs)*(abs(new_charging_nodes[1][0]-loc[0])+abs(new_charging_nodes[1][1]-loc[1]))
+print("Average distance to old charging stations:\t", old_cs_ave_dist)
+
+new_cs_dist = abs(new_charging_nodes[0][0]-new_charging_nodes[1][0])+abs(new_charging_nodes[0][1]-new_charging_nodes[1][1])
+print("Distance between new chargers:\t\t\t", new_cs_dist)
 
 # Display image of results for user
 #   - Black nodes: available space
@@ -107,6 +136,7 @@ new_cs_graph = G.subgraph(new_charging_nodes)
 #   - Nodes marked 'P': POI locations
 #   - Blue nodes: new charger locations
 
+new_cs_graph = G.subgraph(new_charging_nodes)
 poi_labels = {x: 'P' for x in poi_graph.nodes()}
 poi_cs_labels = {x: 'P' for x in poi_graph.nodes()}
 pos = {x: [x[0],x[1]] for x in G.nodes()}

@@ -28,6 +28,15 @@ image is saved as ```map.png```, as shown in the image below.
 Finally, the new charging locations within the grid are printed on the command
 line for the user.
 
+### Setting a random seed
+
+If the user desires, a seed can be set for the random scenario generator using
+the option `-s`.  For example:
+
+```python demo.py -s 42```
+
+sets a seed of 42 for the random scenario.
+
 ## Building the BQM
 
 This problem can be considered as a set of 4 independent constraints (or
