@@ -30,8 +30,14 @@ except ImportError:
 # Read in user option for random seed
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--seed", help="set a random seed for scenario", type=int)
+parser.add_argument("-x", "--width", help="set the width of the grid", type=int)
+parser.add_argument("-y", "--height", help="set the height of the grid", type=int)
+parser.add_argument("-p", "--poi", help="set the number of POIs", type=int)
+parser.add_argument("-c", "--chargers", help="set the number of existing chargers", type=int)
+parser.add_argument("-n", "--new_chargers", help="set the number of new chargers", type=int)
 args = parser.parse_args()
 
+# Check all inputs are valid
 if isinstance(args.seed, int):
     random.seed(args.seed)
 elif args.seed is None:
@@ -40,8 +46,57 @@ else:
     print("Seed must be an integer.")
     sys.exit(0)
 
+if isinstance(args.width, int) and args.width>0:
+    w = args.width
+elif args.width is None:
+    w = 15
+else:
+    print("Width must be a positive integer.")
+    sys.exit(0)
+
+if isinstance(args.height, int) and args.height>0:
+    h = args.height
+elif args.height is None:
+    h = 15
+else:
+    print("Height must be a positive integer.")
+    sys.exit(0)
+
+if isinstance(args.poi, int) and (args.poi >= 0) and (args.poi <= w*h):
+    num_poi = args.poi
+elif (args.poi is None) and (3 <= w*h):
+    num_poi = 3
+elif (args.poi is None) and (3 > w*h):
+    print("Too many POIs for grid size.")
+    sys.exit(0)
+else:
+    print("Number of POIs must be an integer and between 0 and total size of grid.")
+    sys.exit(0)
+
+if isinstance(args.chargers, int) and (args.chargers >= 0) and (args.chargers <= w*h):
+    num_cs = args.chargers
+elif (args.chargers is None) and (4 <= w*h):
+    num_cs = 4
+elif (args.chargers is None) and (4 > w*h):
+    print("Too many chargers for grid size.")
+    sys.exit(0)
+else:
+    print("Number of chargers must be an integer and between 0 and total size of grid.")
+    sys.exit(0)
+
+if isinstance(args.new_chargers, int) and (args.new_chargers >= 0) and (args.new_chargers <= w*h - num_cs):
+    num_new_cs = args.new_chargers
+elif (args.new_chargers is None) and (2 <= w*h - num_cs):
+    num_new_cs = 2
+elif (args.new_chargers is None) and (2 > w*h - num_cs):
+    print("Too many chargers for grid size and existing charger count.")
+    sys.exit(0)
+else:
+    print("Number of chargers must be an integer and between 0 and total size of grid minus existing chargers.")
+    sys.exit(0)
+
 # Build large grid graph for city
-G = nx.grid_2d_graph(14, 15)
+G = nx.grid_2d_graph(w, h)
 nodes = G.nodes()
 
 # Tunable parameters
@@ -51,15 +106,10 @@ gamma3 = len(G.nodes()) * 0.6
 gamma4 = len(G.nodes()) ** 2
 
 # Identify a fixed set of points of interest
-num_poi = 3
 pois = random.sample(nodes, k=num_poi)
 
 # Identify a fixed set of current charging locations
-num_cs = 4
 charging_stations = random.sample(nodes, k=num_cs)
-
-# Number of new charging stations to place
-num_new_cs = 2
 
 poi_cs_list = set(pois) - (set(pois)-set(charging_stations))
 poi_cs_graph = G.subgraph(poi_cs_list)
@@ -74,35 +124,38 @@ potential_new_cs_nodes = list(nodes - charging_stations)
 bqm = dimod.AdjVectorBQM(len(potential_new_cs_nodes), 'BINARY')
 
 # Constraint 1: Min average distance to POIs
-for i in range(len(potential_new_cs_nodes)):
-    # Compute average distance to POIs from this node
-    ave_dist = 0
-    cand_loc = potential_new_cs_nodes[i]
-    for loc in pois:
-        dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2 
-                            + cand_loc[1]**2 - 2*cand_loc[1]*loc[1] + loc[1]**2)
-        ave_dist += dist / num_cs
-    bqm.linear[i] = ave_dist * gamma1
+if num_poi > 0:
+    for i in range(len(potential_new_cs_nodes)):
+        # Compute average distance to POIs from this node
+        ave_dist = 0
+        cand_loc = potential_new_cs_nodes[i]
+        for loc in pois:
+            dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2 
+                                + cand_loc[1]**2 - 2*cand_loc[1]*loc[1] + loc[1]**2)
+            ave_dist += dist / num_poi 
+        bqm.linear[i] += ave_dist * gamma1
 
 # Constraint 2: Max distance to existing chargers
-for i in range(len(potential_new_cs_nodes)):
-    # Compute average distance to POIs from this node
-    ave_dist = 0
-    cand_loc = potential_new_cs_nodes[i]
-    for loc in charging_stations:
-        dist = (-1*cand_loc[0]**2 + 2*cand_loc[0]*loc[0] - loc[0]**2
-                            - cand_loc[1]**2 + 2*cand_loc[1]*loc[1] - loc[1]**2)
-        ave_dist += dist / num_poi
-    bqm.linear[i] += ave_dist * gamma2
+if num_cs > 0:
+    for i in range(len(potential_new_cs_nodes)):
+        # Compute average distance to POIs from this node
+        ave_dist = 0
+        cand_loc = potential_new_cs_nodes[i]
+        for loc in charging_stations:
+            dist = (-1*cand_loc[0]**2 + 2*cand_loc[0]*loc[0] - loc[0]**2
+                                - cand_loc[1]**2 + 2*cand_loc[1]*loc[1] - loc[1]**2)
+            ave_dist += dist / num_cs
+        bqm.linear[i] += ave_dist * gamma2
 
-# Constraint 3: Max distance to other new charging location
-for i in range(len(potential_new_cs_nodes)):
-    for j in range(i+1, len(potential_new_cs_nodes)):
-        ai = potential_new_cs_nodes[i]
-        aj = potential_new_cs_nodes[j]
-        dist = (-1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2 
-                + 2*ai[1]*aj[1] - aj[1]**2)
-        bqm.add_interaction(i, j, dist * gamma3)
+# Constraint 3: Max distance to other new charging locations
+if num_new_cs > 1:
+    for i in range(len(potential_new_cs_nodes)):
+        for j in range(i+1, len(potential_new_cs_nodes)):
+            ai = potential_new_cs_nodes[i]
+            aj = potential_new_cs_nodes[j]
+            dist = (-1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2 
+                    + 2*ai[1]*aj[1] - aj[1]**2)
+            bqm.add_interaction(i, j, dist * gamma3)
 
 # Constraint 4: Choose exactly num_new_cs new charging locations
 bqm.update(dimod.generators.combinations(bqm.variables, num_new_cs, strength=gamma4))

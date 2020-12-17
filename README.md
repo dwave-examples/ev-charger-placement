@@ -37,6 +37,24 @@ the option `-s`.  For example:
 
 sets a seed of 42 for the random scenario.
 
+### Customizing the scenario
+
+Options are also provided for the user to customize several components of the
+randomly generated scenario.
+
+- `-x`: set the grid horizontal dimension. Default: 15.
+- `-y`: set the grid vertical dimension. Default: 15.
+- `-p`: set the number of POIs on the grid. Defaults to 3.
+- `-c`: set the number of existing charging stations on the grid. Default: 4.
+- `-n`: set the number of new charging stations to be placed. Default: 2.
+
+Any combination of these options may be used. For example:
+
+```python demo.py -g (10,10) -c 2```
+
+builds a random scenario on a 10x10 grid with 3 POIs, 2 existing chargers, and
+2 new locations to be identified.
+
 ## Problem Formulation
 
 There are many different variations of the electric vehicle charger placement
@@ -109,4 +127,4 @@ to build a BQM object, suitable for both quantum and hybrid solvers.
 
 ## References
 
-[1] Pagany, Raphaela, Anna Marquardt, and Roland Zink. "Electric Charging Demand Location Model—A User-and Destination-Based Locating Approach for Electric Vehicle Charging Stations." Sustainability 11.8 (2019): 2301. [https://doi.org/10.3390/su11082301](https://doi.org/10.3390/su11082301)
+<a name="1">[1]</a> Pagany, Raphaela, Anna Marquardt, and Roland Zink. "Electric Charging Demand Location Model—A User-and Destination-Based Locating Approach for Electric Vehicle Charging Stations." Sustainability 11.8 (2019): 2301. [https://doi.org/10.3390/su11082301](https://doi.org/10.3390/su11082301)
