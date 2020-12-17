@@ -37,7 +37,18 @@ the option `-s`.  For example:
 
 sets a seed of 42 for the random scenario.
 
-## Building the BQM
+## Problem Formulation
+
+There are many different variations of the electric vehicle charger placement
+problem that might be considered. For this demo, we examine the case in which a
+small region is under consideration, and all locations in our area of
+consideration are within walking distance. In this situation, we want to place
+new charging locations that are convenient to all POIs. For example, if the
+POIs are shops on a main street it is most convenient to park once in a central
+location. We will satisfy this need by considering the average distance from a
+potential new charging location all POIs [[1]](#1). Additionally, we want to
+place new chargers away from existing and other new charging locations so as to
+minimize overalp and maximize coverage of the region.
 
 This problem can be considered as a set of 4 independent constraints (or
 objectives) with binary variables that represent each potential new charging
@@ -95,3 +106,7 @@ can become quite slow. Using NumPy arrays instead allows Python to run quickly,
 and is much more efficient on large problems. The Ocean ```AdjVectorBQM```
 functions allow the user to store biases as numpy arrays and load them quickly
 to build a BQM object, suitable for both quantum and hybrid solvers.
+
+## References
+
+<a name="1">[1]</a> Pagany, Raphaela, Anna Marquardt, and Roland Zink. "Electric Charging Demand Location Model—A User-and Destination-Based Locating Approach for Electric Vehicle Charging Stations." Sustainability 11.8 (2019): 2301. [https://doi.org/10.3390/su11082301](https://doi.org/10.3390/su11082301)
