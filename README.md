@@ -28,15 +28,6 @@ image is saved as ```map.png```, as shown in the image below.
 Finally, the new charging locations within the grid are printed on the command
 line for the user, as well as some information on distances in the new map.
 
-### Setting a random seed
-
-If the user desires, a seed can be set for the random scenario generator using
-the option `-s`.  For example:
-
-```python demo.py -s 42```
-
-sets a seed of 42 for the random scenario.
-
 ### Customizing the scenario
 
 Options are also provided for the user to customize several components of the
@@ -47,6 +38,7 @@ randomly generated scenario.
 - `-p`: set the number of POIs on the grid. Defaults to 3.
 - `-c`: set the number of existing charging stations on the grid. Default: 4.
 - `-n`: set the number of new charging stations to be placed. Default: 2.
+- `-s`: set a random seed so that specific senarios can be repeated.
 
 Any combination of these options may be used. For example:
 
