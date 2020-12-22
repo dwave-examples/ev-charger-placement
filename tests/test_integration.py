@@ -17,7 +17,8 @@ import subprocess
 import sys
 import unittest
 import random
-import re
+import demo
+import neal
 
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,41 +30,73 @@ class TestDemo(unittest.TestCase):
         demo_file = os.path.join(project_dir, 'demo.py')
         subprocess.check_output([sys.executable, demo_file])
 
+    def test_scenario_setup(self):
+
+        w, h = (random.randint(10,20), random.randint(10,20))
+        num_poi, num_cs, num_new_cs = (random.randint(1,4), random.randint(1,4), random.randint(1,4))
+
+        G, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
+
+        self.assertEqual(len(G.nodes()), w*h)
+        self.assertEqual(len(pois), num_poi)
+        self.assertEqual(len(charging_stations), num_cs)
+        self.assertEqual(len(potential_new_cs_nodes), len(G.nodes())-len(charging_stations))
+
     def test_num_new_cs(self):
-        """run demo.py and check that two new charging locations are found"""
+        """Check that correct number of new charging locations are found"""
 
-        demo_file = os.path.join(project_dir, 'demo.py')
-        value = subprocess.check_output([sys.executable, demo_file]).split()
-        temp = ''.join([word.decode("utf-8") for word in value[6:10]])
-        temp = re.findall(r'\d+', temp)
-        res = list(map(int, temp))
+        w, h = (random.randint(10,20), random.randint(10,20))
+        num_poi, num_cs, num_new_cs = (random.randint(1,4), random.randint(1,4), random.randint(1,4))
 
-        self.assertEqual(4, len(res))
+        G, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
+
+        bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
+
+        sampler = neal.SimulatedAnnealingSampler()
+        new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+
+        self.assertEqual(num_new_cs, len(new_charging_nodes))
+
+    def test_close_to_pois(self):
+        """run demo.py and with no existing charging stations and check that one
+        new charging location is close to the centroid of the triangle"""
+
+        w, h = (15, 15)
+        num_poi, num_cs, num_new_cs = (3, 0, 1)
+
+        _, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
+
+        pois = [(0,0),(6,14),(14,0)]
+        centroid = (round((0+6+14)/3), round((0+14+0)/3))
+
+        bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
+
+        sampler = neal.SimulatedAnnealingSampler()
+        new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+
+        new_cs_x = new_charging_nodes[0][0]
+        new_cs_y = new_charging_nodes[0][1]
+
+        self.assertTrue(new_cs_x - centroid[0] < 4)
+        self.assertTrue(new_cs_y - centroid[1] < 4)
 
     def test_solution_quality(self):
         """Run demo.py with seed set and check solution quality"""
 
-        seed = '42'
-        demo_file = os.path.join(project_dir, 'demo.py')
-        value = subprocess.check_output([sys.executable, demo_file, "-s", seed]).split()
+        random.seed(42)
+        w, h = (15, 15)
+        num_poi, num_cs, num_new_cs = (0, 0, 2)
 
-        # Check that new chargers aren't too close
-        new_charger_dist = int(value[-1].decode("utf-8"))
-        self.assertTrue(new_charger_dist > 10)
+        _, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
 
-        # Check that new chargers are close to POIs
-        temp = ''.join([word.decode("utf-8") for word in value[14:16]])
-        poi_dist = re.findall(r'\d+', temp)
-        poi_dist = list(map(int, poi_dist))
-        poi_dist = poi_dist[0] + poi_dist[2]
-        self.assertTrue(poi_dist < 18)
+        bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
-        # Check that new chargers are far from existing chargers
-        temp = ''.join([word.decode("utf-8") for word in value[22:24]])
-        old_cs_dist = re.findall(r'\d+', temp)
-        old_cs_dist = list(map(int, old_cs_dist))
-        old_cs_dist = old_cs_dist[0] + old_cs_dist[2]
-        self.assertTrue(old_cs_dist > 15)
+        sampler = neal.SimulatedAnnealingSampler()
+        new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+
+        _, _, new_cs_dist = demo.compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
+
+        self.assertTrue(new_cs_dist > 15)
 
 if __name__ == '__main__':
     unittest.main()
