@@ -121,10 +121,10 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     """ Build bqm that models our problem scenario for the hybrid sampler. """
 
     # Tunable parameters
-    gamma1 = len(G.nodes()) * 2
-    gamma2 = len(G.nodes()) / 3
-    gamma3 = len(G.nodes()) * 0.9
-    gamma4 = len(G.nodes()) ** 2
+    gamma1 = len(potential_new_cs_nodes) * 3
+    gamma2 = len(potential_new_cs_nodes) / 3
+    gamma3 = len(potential_new_cs_nodes) * 2
+    gamma4 = len(potential_new_cs_nodes) ** 3
 
     # Build BQM using adjVectors to find best new charging location s.t. min 
     # distance to POIs and max distance to existing charging locations
@@ -207,7 +207,6 @@ def compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_no
                 new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
 
     return poi_ave_dist, old_cs_ave_dist, new_cs_dist
-
 
 def printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_ave_dist, old_cs_ave_dist, new_cs_dist):
     """ Print solution statistics to command line. """
