@@ -42,7 +42,7 @@ randomly generated scenario.
 
 Any combination of these options may be used. For example:
 
-```python demo.py -g (10,10) -c 2```
+```python demo.py -x 10 -y 10 -c 2```
 
 builds a random scenario on a 10x10 grid with 3 POIs, 2 existing chargers, and
 2 new locations to be identified.
