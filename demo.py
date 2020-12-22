@@ -121,9 +121,9 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     """ Build bqm that models our problem scenario for the hybrid sampler. """
 
     # Tunable parameters
-    gamma1 = len(potential_new_cs_nodes) * 3
+    gamma1 = len(potential_new_cs_nodes) * 4
     gamma2 = len(potential_new_cs_nodes) / 3
-    gamma3 = len(potential_new_cs_nodes) * 2
+    gamma3 = len(potential_new_cs_nodes) * 1
     gamma4 = len(potential_new_cs_nodes) ** 3
 
     # Build BQM using adjVectors to find best new charging location s.t. min 
