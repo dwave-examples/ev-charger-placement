@@ -19,6 +19,7 @@ import unittest
 import random
 import demo
 import neal
+import numpy as np
 
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -32,7 +33,7 @@ class TestDemo(unittest.TestCase):
 
     def test_scenario_setup(self):
 
-        w, h = (random.randint(10,20), random.randint(10,20))
+        w, h = random.randint(10,20), random.randint(10,20)
         num_poi, num_cs, num_new_cs = (random.randint(1,4), random.randint(1,4), random.randint(1,4))
 
         G, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
@@ -66,19 +67,19 @@ class TestDemo(unittest.TestCase):
         _, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
 
         pois = [(0,0),(6,14),(14,0)]
-        centroid = (round((0+6+14)/3), round((0+14+0)/3))
+        centroid = np.array(pois).mean(axis=0).round().tolist()
 
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
         random.seed(1)
-        sampler = neal.SimulatedAnnealingSampler()
+        sampler = neal.SimulatedAnnealingSampler(seed=1)
         new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
 
         new_cs_x = new_charging_nodes[0][0]
         new_cs_y = new_charging_nodes[0][1]
 
-        self.assertTrue(new_cs_x - centroid[0] < 5)
-        self.assertTrue(new_cs_y - centroid[1] < 5)
+        self.assertLess(new_cs_x - centroid[0], 5)
+        self.assertLess(new_cs_y - centroid[1], 5)
 
     def test_solution_quality(self):
         """Run demo.py with no POIs or existing chargers to locate two new chargers"""
@@ -90,13 +91,13 @@ class TestDemo(unittest.TestCase):
 
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
-        random.seed(1)
-        sampler = neal.SimulatedAnnealingSampler()
+        # random.seed(1)
+        sampler = neal.SimulatedAnnealingSampler(seed=1)
         new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
 
         _, _, new_cs_dist = demo.compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
 
-        self.assertTrue(new_cs_dist > 10)
+        self.assertGreater(new_cs_dist, 10)
 
 if __name__ == '__main__':
     unittest.main()

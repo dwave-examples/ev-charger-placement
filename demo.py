@@ -30,72 +30,35 @@ except ImportError:
 def read_in_args():
     """ Read in user specified parameters or use defaults."""
 
-    # Read in user option for random seed
+    # Set up user-specified optional arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--seed", help="set a random seed for scenario", type=int)
-    parser.add_argument("-x", "--width", help="set the width of the grid", type=int)
-    parser.add_argument("-y", "--height", help="set the height of the grid", type=int)
-    parser.add_argument("-p", "--poi", help="set the number of POIs", type=int)
-    parser.add_argument("-c", "--chargers", help="set the number of existing chargers", type=int)
-    parser.add_argument("-n", "--new_chargers", help="set the number of new chargers", type=int)
+    parser.add_argument("-x", "--width", help="set the width of the grid", default=15, type=int)
+    parser.add_argument("-y", "--height", help="set the height of the grid", default=15, type=int)
+    parser.add_argument("-p", "--poi", help="set the number of POIs", default=3, type=int)
+    parser.add_argument("-c", "--chargers", help="set the number of existing chargers", default=4, type=int)
+    parser.add_argument("-n", "--new-chargers", help="set the number of new chargers", default=2, type=int)
     args = parser.parse_args()
 
-    # Check all inputs are valid
-    if isinstance(args.seed, int):
+    # Read in user-specified values
+    w = args.width
+    h = args.height
+    num_poi = args.poi
+    num_cs = args.chargers
+    num_new_cs = args.new_chargers
+
+    # Set seed if specified by user
+    if (args.seed):
         random.seed(args.seed)
-    elif args.seed is None:
-        pass
-    else:
-        print("Seed must be an integer.")
+
+    # Make sure specified values are non-negative
+    if (w < 0) or (h < 0) or (num_poi < 0) or (num_cs < 0) or (num_new_cs < 0):
+        print("All option values must be non-negative.")
         sys.exit(0)
 
-    if isinstance(args.width, int) and args.width>0:
-        w = args.width
-    elif args.width is None:
-        w = 15
-    else:
-        print("Width must be a positive integer.")
-        sys.exit(0)
-
-    if isinstance(args.height, int) and args.height>0:
-        h = args.height
-    elif args.height is None:
-        h = 15
-    else:
-        print("Height must be a positive integer.")
-        sys.exit(0)
-
-    if isinstance(args.poi, int) and (args.poi >= 0) and (args.poi <= w*h):
-        num_poi = args.poi
-    elif (args.poi is None) and (3 <= w*h):
-        num_poi = 3
-    elif (args.poi is None) and (3 > w*h):
-        print("Too many POIs for grid size.")
-        sys.exit(0)
-    else:
-        print("Number of POIs must be an integer and between 0 and total size of grid.")
-        sys.exit(0)
-
-    if isinstance(args.chargers, int) and (args.chargers >= 0) and (args.chargers <= w*h):
-        num_cs = args.chargers
-    elif (args.chargers is None) and (4 <= w*h):
-        num_cs = 4
-    elif (args.chargers is None) and (4 > w*h):
-        print("Too many chargers for grid size.")
-        sys.exit(0)
-    else:
-        print("Number of chargers must be an integer and between 0 and total size of grid.")
-        sys.exit(0)
-
-    if isinstance(args.new_chargers, int) and (args.new_chargers >= 0) and (args.new_chargers <= w*h - num_cs):
-        num_new_cs = args.new_chargers
-    elif (args.new_chargers is None) and (2 <= w*h - num_cs):
-        num_new_cs = 2
-    elif (args.new_chargers is None) and (2 > w*h - num_cs):
-        print("Too many chargers for grid size and existing charger count.")
-        sys.exit(0)
-    else:
-        print("Number of chargers must be an integer and between 0 and total size of grid minus existing chargers.")
+    # Make sure grid is large enough for scenario
+    if (num_poi > w*h) or (num_cs + num_new_cs > w*h):
+        print("Grid size is not large enough for scenario.")
         sys.exit(0)
     
     return w, h, num_poi, num_cs, num_new_cs
@@ -134,25 +97,25 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     if num_poi > 0:
         for i in range(len(potential_new_cs_nodes)):
             # Compute average distance to POIs from this node
-            ave_dist = 0
+            avg_dist = 0
             cand_loc = potential_new_cs_nodes[i]
             for loc in pois:
                 dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2 
                                     + cand_loc[1]**2 - 2*cand_loc[1]*loc[1] + loc[1]**2)
-                ave_dist += dist / num_poi 
-            bqm.linear[i] += ave_dist * gamma1
+                avg_dist += dist / num_poi 
+            bqm.linear[i] += avg_dist * gamma1
 
     # Constraint 2: Max distance to existing chargers
     if num_cs > 0:
         for i in range(len(potential_new_cs_nodes)):
             # Compute average distance to POIs from this node
-            ave_dist = 0
+            avg_dist = 0
             cand_loc = potential_new_cs_nodes[i]
             for loc in charging_stations:
                 dist = (-1*cand_loc[0]**2 + 2*cand_loc[0]*loc[0] - loc[0]**2
                                     - cand_loc[1]**2 + 2*cand_loc[1]*loc[1] - loc[1]**2)
-                ave_dist += dist / num_cs
-            bqm.linear[i] += ave_dist * gamma2
+                avg_dist += dist / num_cs
+            bqm.linear[i] += avg_dist * gamma2
 
     # Constraint 3: Max distance to other new charging locations
     if num_new_cs > 1:
@@ -183,20 +146,19 @@ def compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_no
     """ Compute statistics on result scenario. """
 
     # Compute average distance from new chargers to POIs
-    poi_ave_dist = 0
-    if num_poi > 0:
-        poi_ave_dist = [0 for _ in range(num_new_cs)]
+    if num_poi > 0: 
+        poi_avg_dist = [0] * len(new_charging_nodes)
         for loc in pois:
-            for i in range(num_new_cs):
-                poi_ave_dist[i] += (1/num_poi)*(abs(new_charging_nodes[i][0]-loc[0])+abs(new_charging_nodes[i][1]-loc[1]))
+            for i, new in enumerate(new_charging_nodes):
+                poi_avg_dist[i] += sum(abs(a - b) for a, b in zip(new, loc)) / num_poi
+    else:
+        poi_avg_dist = 0
 
     # Compute average distance from new chargers to old chargers
-    old_cs_ave_dist = 0
     if num_cs > 0:
-        old_cs_ave_dist = [0 for _ in range(num_new_cs)]
-        for loc in charging_stations:
-            for i in range(num_new_cs):
-                old_cs_ave_dist[i] += (1/num_cs)*(abs(new_charging_nodes[i][0]-loc[0])+abs(new_charging_nodes[i][1]-loc[1]))
+        old_cs_avg_dist = [sum(abs(a - b) for a, b in zip(new, loc) for loc in charging_stations) / num_cs for new in new_charging_nodes]
+    else:
+        old_cs_avg_dist = 0
 
     # Compute average distance between new chargers
     new_cs_dist = 0
@@ -206,9 +168,9 @@ def compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_no
             for j in range(i+1, num_new_cs):
                 new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
 
-    return poi_ave_dist, old_cs_ave_dist, new_cs_dist
+    return poi_avg_dist, old_cs_avg_dist, new_cs_dist
 
-def printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_ave_dist, old_cs_ave_dist, new_cs_dist):
+def printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_avg_dist, old_cs_avg_dist, new_cs_dist):
     """ Print solution statistics to command line. """
 
     print("\nSolution returned: \n------------------")
@@ -216,15 +178,15 @@ def printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs
     print("\nNew charging locations:\t\t\t\t", new_charging_nodes)
 
     if num_poi > 0:
-        print("Average distance to POIs:\t\t\t", poi_ave_dist)
+        print("Average distance to POIs:\t\t\t", poi_avg_dist)
 
     if num_cs > 0:
-        print("Average distance to old charging stations:\t", old_cs_ave_dist)
+        print("Average distance to old charging stations:\t", old_cs_avg_dist)
 
     if num_new_cs > 1:
         print("Distance between new chargers:\t\t\t", new_cs_dist)
 
-def build_output_image(G, pois, charging_stations, new_charging_nodes):
+def save_output_image(G, pois, charging_stations, new_charging_nodes):
     """ Create output image of solution scenario. 
             - Black nodes: available space
             - Red nodes: current charger location
@@ -291,10 +253,10 @@ if __name__ == '__main__':
     new_charging_nodes = run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
 
     # Compute stats on best solution found
-    poi_ave_dist, old_cs_ave_dist, new_cs_dist = compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
+    poi_avg_dist, old_cs_avg_dist, new_cs_dist = compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
 
     # Print results to commnand-line for user
-    printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_ave_dist, old_cs_ave_dist, new_cs_dist)
+    printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_avg_dist, old_cs_avg_dist, new_cs_dist)
 
     # Create scenario output image
-    build_output_image(G, pois, charging_stations, new_charging_nodes)
+    save_output_image(G, pois, charging_stations, new_charging_nodes)

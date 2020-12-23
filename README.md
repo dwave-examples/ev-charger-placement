@@ -35,7 +35,7 @@ randomly generated scenario.
 
 - `-x`: set the grid horizontal dimension. Default: 15.
 - `-y`: set the grid vertical dimension. Default: 15.
-- `-p`: set the number of POIs on the grid. Defaults to 3.
+- `-p`: set the number of POIs on the grid. Default: 3.
 - `-c`: set the number of existing charging stations on the grid. Default: 4.
 - `-n`: set the number of new charging stations to be placed. Default: 2.
 - `-s`: set a random seed so that specific senarios can be repeated.
@@ -58,7 +58,7 @@ POIs are shops on a main street it is most convenient to park once in a central
 location. We will satisfy this need by considering the average distance from a
 potential new charging location all POIs [[1]](#1). Additionally, we want to
 place new chargers away from existing and other new charging locations so as to
-minimize overalp and maximize coverage of the region.
+minimize overlap and maximize coverage of the region.
 
 This problem can be considered as a set of 4 independent constraints (or
 objectives) with binary variables that represent each potential new charging
