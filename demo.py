@@ -142,35 +142,7 @@ def run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes):
 
     return new_charging_nodes
 
-def compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs):
-    """ Compute statistics on result scenario. """
-
-    # Compute average distance from new chargers to POIs
-    if num_poi > 0: 
-        poi_avg_dist = [0] * len(new_charging_nodes)
-        for loc in pois:
-            for i, new in enumerate(new_charging_nodes):
-                poi_avg_dist[i] += sum(abs(a - b) for a, b in zip(new, loc)) / num_poi
-    else:
-        poi_avg_dist = 0
-
-    # Compute average distance from new chargers to old chargers
-    if num_cs > 0:
-        old_cs_avg_dist = [sum(abs(a - b) for a, b in zip(new, loc) for loc in charging_stations) / num_cs for new in new_charging_nodes]
-    else:
-        old_cs_avg_dist = 0
-
-    # Compute average distance between new chargers
-    new_cs_dist = 0
-    if num_new_cs > 1:
-        new_cs_dist = 0
-        for i in range(num_new_cs):
-            for j in range(i+1, num_new_cs):
-                new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
-
-    return poi_avg_dist, old_cs_avg_dist, new_cs_dist
-
-def printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_avg_dist, old_cs_avg_dist, new_cs_dist):
+def printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs):
     """ Print solution statistics to command line. """
 
     print("\nSolution returned: \n------------------")
@@ -178,12 +150,21 @@ def printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs
     print("\nNew charging locations:\t\t\t\t", new_charging_nodes)
 
     if num_poi > 0:
+        poi_avg_dist = [0] * len(new_charging_nodes)
+        for loc in pois:
+            for i, new in enumerate(new_charging_nodes):
+                poi_avg_dist[i] += sum(abs(a - b) for a, b in zip(new, loc)) / num_poi
         print("Average distance to POIs:\t\t\t", poi_avg_dist)
 
     if num_cs > 0:
+        old_cs_avg_dist = [sum(abs(a - b) for a, b in zip(new, loc) for loc in charging_stations) / num_cs for new in new_charging_nodes]
         print("Average distance to old charging stations:\t", old_cs_avg_dist)
 
     if num_new_cs > 1:
+        new_cs_dist = 0
+        for i in range(num_new_cs):
+            for j in range(i+1, num_new_cs):
+                new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
         print("Distance between new chargers:\t\t\t", new_cs_dist)
 
 def save_output_image(G, pois, charging_stations, new_charging_nodes):
@@ -252,11 +233,8 @@ if __name__ == '__main__':
     
     new_charging_nodes = run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
 
-    # Compute stats on best solution found
-    poi_avg_dist, old_cs_avg_dist, new_cs_dist = compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
-
     # Print results to commnand-line for user
-    printout_solution_to_cmdline(num_poi, new_charging_nodes, num_new_cs, num_cs, poi_avg_dist, old_cs_avg_dist, new_cs_dist)
+    printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
 
     # Create scenario output image
     save_output_image(G, pois, charging_stations, new_charging_nodes)
