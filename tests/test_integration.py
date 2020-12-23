@@ -54,12 +54,12 @@ class TestDemo(unittest.TestCase):
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
         sampler = neal.SimulatedAnnealingSampler()
-        new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+        new_charging_nodes = demo.run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes)
 
         self.assertEqual(num_new_cs, len(new_charging_nodes))
 
     def test_close_to_pois(self):
-        """Check that 1 new and 0 oldcharging location is close to centroid of POIs"""
+        """Check that 1 new / 0 old chargers scenario is close to centroid of POIs"""
 
         w, h = (15, 15)
         num_poi, num_cs, num_new_cs = (3, 0, 1)
@@ -71,9 +71,9 @@ class TestDemo(unittest.TestCase):
 
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
-        random.seed(1)
-        sampler = neal.SimulatedAnnealingSampler(seed=1)
-        new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+        # random.seed(1)
+        sampler = neal.SimulatedAnnealingSampler()
+        new_charging_nodes = demo.run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes, seed=42)
 
         new_cs_x = new_charging_nodes[0][0]
         new_cs_y = new_charging_nodes[0][1]
@@ -92,10 +92,13 @@ class TestDemo(unittest.TestCase):
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
         # random.seed(1)
-        sampler = neal.SimulatedAnnealingSampler(seed=1)
-        new_charging_nodes = demo.run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+        sampler = neal.SimulatedAnnealingSampler()
+        new_charging_nodes = demo.run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes, seed=1)
 
-        _, _, new_cs_dist = demo.compute_soln_stats(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
+        new_cs_dist = 0
+        for i in range(num_new_cs):
+            for j in range(i+1, num_new_cs):
+                new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
 
         self.assertGreater(new_cs_dist, 10)
 

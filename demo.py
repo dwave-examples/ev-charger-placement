@@ -86,7 +86,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     # Tunable parameters
     gamma1 = len(potential_new_cs_nodes) * 4
     gamma2 = len(potential_new_cs_nodes) / 3
-    gamma3 = len(potential_new_cs_nodes) * 1
+    gamma3 = len(potential_new_cs_nodes) * 1.7
     gamma4 = len(potential_new_cs_nodes) ** 3
 
     # Build BQM using adjVectors to find best new charging location s.t. min 
@@ -132,10 +132,10 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
 
     return bqm
 
-def run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes):
+def run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes, **kwargs):
     """ Solve the bqm with the provided sampler to find new charger locations. """
 
-    sampleset = sampler.sample(bqm)
+    sampleset = sampler.sample(bqm, **kwargs)
 
     ss = sampleset.first.sample
     new_charging_nodes = [potential_new_cs_nodes[k] for k, v in ss.items() if v == 1]
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     sampler = LeapHybridSampler()
     print("\nRunning scenario on", sampler.solver.id, "solver...")
     
-    new_charging_nodes = run_bqm_and_collection_solns(bqm, sampler, potential_new_cs_nodes)
+    new_charging_nodes = run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes)
 
     # Print results to commnand-line for user
     printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
