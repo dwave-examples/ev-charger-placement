@@ -54,7 +54,7 @@ class TestDemo(unittest.TestCase):
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
         sampler = neal.SimulatedAnnealingSampler()
-        new_charging_nodes = demo.run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes)
+        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
         self.assertEqual(num_new_cs, len(new_charging_nodes))
 
@@ -73,7 +73,7 @@ class TestDemo(unittest.TestCase):
 
         # random.seed(1)
         sampler = neal.SimulatedAnnealingSampler()
-        new_charging_nodes = demo.run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes, seed=42)
+        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, seed=42)
 
         new_cs_x = new_charging_nodes[0][0]
         new_cs_y = new_charging_nodes[0][1]
@@ -93,7 +93,7 @@ class TestDemo(unittest.TestCase):
 
         # random.seed(1)
         sampler = neal.SimulatedAnnealingSampler()
-        new_charging_nodes = demo.run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes, seed=1)
+        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, seed=1)
 
         new_cs_dist = 0
         for i in range(num_new_cs):
@@ -104,4 +104,3 @@ class TestDemo(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    
