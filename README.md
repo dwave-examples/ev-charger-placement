@@ -26,9 +26,39 @@ image is saved as ```map.png```, as shown in the image below.
 ![Example output](readme_imgs/map.png "Example output")
 
 Finally, the new charging locations within the grid are printed on the command
-line for the user.
+line for the user, as well as some information on distances in the new map.
 
-## Building the BQM
+### Customizing the scenario
+
+Options are also provided for the user to customize several components of the
+randomly generated scenario.
+
+- `-x`: set the grid horizontal dimension. Default: 15.
+- `-y`: set the grid vertical dimension. Default: 15.
+- `-p`: set the number of POIs on the grid. Default: 3.
+- `-c`: set the number of existing charging stations on the grid. Default: 4.
+- `-n`: set the number of new charging stations to be placed. Default: 2.
+- `-s`: set a random seed so that specific senarios can be repeated.
+
+Any combination of these options may be used. For example:
+
+```python demo.py -x 10 -y 10 -c 2```
+
+builds a random scenario on a 10x10 grid with 3 POIs, 2 existing chargers, and
+2 new locations to be identified.
+
+## Problem Formulation
+
+There are many different variations of the electric vehicle charger placement
+problem that might be considered. For this demo, we examine the case in which a
+small region is under consideration, and all locations in our area of
+consideration are within walking distance. In this situation, we want to place
+new charging locations that are convenient to all POIs. For example, if the
+POIs are shops on a main street it is most convenient to park once in a central
+location. We will satisfy this need by considering the average distance from a
+potential new charging location all POIs [[1]](#1). Additionally, we want to
+place new chargers away from existing and other new charging locations so as to
+minimize overlap and maximize coverage of the region.
 
 This problem can be considered as a set of 4 independent constraints (or
 objectives) with binary variables that represent each potential new charging
@@ -86,3 +116,7 @@ can become quite slow. Using NumPy arrays instead allows Python to run quickly,
 and is much more efficient on large problems. The Ocean ```AdjVectorBQM```
 functions allow the user to store biases as numpy arrays and load them quickly
 to build a BQM object, suitable for both quantum and hybrid solvers.
+
+## References
+
+<a name="1">[1]</a> Pagany, Raphaela, Anna Marquardt, and Roland Zink. "Electric Charging Demand Location Model—A User-and Destination-Based Locating Approach for Electric Vehicle Charging Stations." Sustainability 11.8 (2019): 2301. [https://doi.org/10.3390/su11082301](https://doi.org/10.3390/su11082301)
