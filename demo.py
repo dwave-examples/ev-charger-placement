@@ -61,7 +61,7 @@ def read_in_args():
         print("Grid size is not large enough for scenario.")
         sys.exit(0)
     
-    return w, h, num_poi, num_cs, num_new_cs
+    return args
 
 def set_up_scenario(w, h, num_poi, num_cs):
     """ Build scenario set up with specified parameters. """
@@ -219,13 +219,13 @@ def save_output_image(G, pois, charging_stations, new_charging_nodes):
 if __name__ == '__main__':
 
     # Collect user inputs
-    w, h, num_poi, num_cs, num_new_cs = read_in_args()
+    args = read_in_args()
 
     # Build large grid graph for city
-    G, pois, charging_stations, potential_new_cs_nodes = set_up_scenario(w, h, num_poi, num_cs)
+    G, pois, charging_stations, potential_new_cs_nodes = set_up_scenario(args.width, args.height, args.poi, args.chargers)
 
     # Build BQM
-    bqm = build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
+    bqm = build_bqm(potential_new_cs_nodes, args.poi, pois, args.chargers, charging_stations, args.new_chargers)
 
     # Run BQM on HSS
     sampler = LeapHybridSampler()
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     new_charging_nodes = run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
     # Print results to commnand-line for user
-    printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
+    printout_solution_to_cmdline(pois, args.poi, charging_stations, args.chargers, new_charging_nodes, args.new_chargers)
 
     # Create scenario output image
     save_output_image(G, pois, charging_stations, new_charging_nodes)
