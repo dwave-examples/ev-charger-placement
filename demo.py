@@ -132,7 +132,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
 
     return bqm
 
-def run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes, **kwargs):
+def run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, **kwargs):
     """ Solve the bqm with the provided sampler to find new charger locations. """
 
     sampleset = sampler.sample(bqm, **kwargs)
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     sampler = LeapHybridSampler()
     print("\nRunning scenario on", sampler.solver.id, "solver...")
     
-    new_charging_nodes = run_bqm_and_collect_solns(bqm, sampler, potential_new_cs_nodes)
+    new_charging_nodes = run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
     # Print results to commnand-line for user
     printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs)
