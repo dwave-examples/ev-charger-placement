@@ -1,3 +1,7 @@
+[![Linux/Mac/Windows build status](
+  https://circleci.com/gh/dwave-examples/ev-charger-placement.svg?style=svg)](
+  https://circleci.com/gh/dwave-examples/ev-charger-placement)
+
 # Placement of Charging Stations
 
 Determining optimal locations to build new electric vehicle charging stations
