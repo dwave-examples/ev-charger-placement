@@ -60,7 +60,7 @@ def read_in_args():
     if (num_poi > w*h) or (num_cs + num_new_cs > w*h):
         print("Grid size is not large enough for scenario.")
         sys.exit(0)
-    
+
     return args
 
 def set_up_scenario(w, h, num_poi, num_cs):
@@ -89,7 +89,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     gamma3 = len(potential_new_cs_nodes) * 1.7
     gamma4 = len(potential_new_cs_nodes) ** 3
 
-    # Build BQM using adjVectors to find best new charging location s.t. min 
+    # Build BQM using adjVectors to find best new charging location s.t. min
     # distance to POIs and max distance to existing charging locations
     bqm = dimod.AdjVectorBQM(len(potential_new_cs_nodes), 'BINARY')
 
@@ -100,9 +100,9 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
             avg_dist = 0
             cand_loc = potential_new_cs_nodes[i]
             for loc in pois:
-                dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2 
+                dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2
                                     + cand_loc[1]**2 - 2*cand_loc[1]*loc[1] + loc[1]**2)
-                avg_dist += dist / num_poi 
+                avg_dist += dist / num_poi
             bqm.linear[i] += avg_dist * gamma1
 
     # Constraint 2: Max distance to existing chargers
@@ -123,7 +123,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
             for j in range(i+1, len(potential_new_cs_nodes)):
                 ai = potential_new_cs_nodes[i]
                 aj = potential_new_cs_nodes[j]
-                dist = (-1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2 
+                dist = (-1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2
                         + 2*ai[1]*aj[1] - aj[1]**2)
                 bqm.add_interaction(i, j, dist * gamma3)
 
@@ -135,7 +135,9 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
 def run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, **kwargs):
     """ Solve the bqm with the provided sampler to find new charger locations. """
 
-    sampleset = sampler.sample(bqm, **kwargs)
+    sampleset = sampler.sample(bqm,
+                               label='Example - EV Charger Placement',
+                               **kwargs)
 
     ss = sampleset.first.sample
     new_charging_nodes = [potential_new_cs_nodes[k] for k, v in ss.items() if v == 1]
@@ -146,7 +148,7 @@ def printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_c
     """ Print solution statistics to command line. """
 
     print("\nSolution returned: \n------------------")
-    
+
     print("\nNew charging locations:\t\t\t\t", new_charging_nodes)
 
     if num_poi > 0:
@@ -168,7 +170,7 @@ def printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_c
         print("Distance between new chargers:\t\t\t", new_cs_dist)
 
 def save_output_image(G, pois, charging_stations, new_charging_nodes):
-    """ Create output image of solution scenario. 
+    """ Create output image of solution scenario.
             - Black nodes: available space
             - Red nodes: current charger location
             - Nodes marked 'P': POI locations
@@ -190,27 +192,27 @@ def save_output_image(G, pois, charging_stations, new_charging_nodes):
     poi_cs_list = set(pois) - (set(pois)-set(charging_stations))
     poi_cs_graph = G.subgraph(poi_cs_list)
     poi_cs_labels = {x: 'P' for x in poi_graph.nodes()}
-    
+
     # Draw old map (left image)
     nx.draw_networkx(G, ax=ax1, pos=pos, with_labels=False, node_color='k', font_color='w')
-    nx.draw_networkx(poi_graph, ax=ax1, pos=pos, with_labels=True, 
+    nx.draw_networkx(poi_graph, ax=ax1, pos=pos, with_labels=True,
                         labels=poi_labels, node_color='k', font_color='w')
     nx.draw_networkx(cs_graph, ax=ax1, pos=pos, with_labels=False, node_color='r',
                         font_color='k')
-    nx.draw_networkx(poi_cs_graph, ax=ax1, pos=pos, with_labels=True, 
+    nx.draw_networkx(poi_cs_graph, ax=ax1, pos=pos, with_labels=True,
                         labels=poi_cs_labels, node_color='r', font_color='w')
 
     # Draw new map (right image)
     new_cs_graph = G.subgraph(new_charging_nodes)
-    nx.draw_networkx(G, ax=ax2, pos=pos, with_labels=False, node_color='k', 
+    nx.draw_networkx(G, ax=ax2, pos=pos, with_labels=False, node_color='k',
                         font_color='w')
-    nx.draw_networkx(poi_graph, ax=ax2, pos=pos, with_labels=True, 
+    nx.draw_networkx(poi_graph, ax=ax2, pos=pos, with_labels=True,
                         labels=poi_labels,node_color='k', font_color='w')
     nx.draw_networkx(cs_graph, ax=ax2, pos=pos, with_labels=False, node_color='r',
                         font_color='k')
-    nx.draw_networkx(poi_cs_graph, ax=ax2, pos=pos, with_labels=True, 
+    nx.draw_networkx(poi_cs_graph, ax=ax2, pos=pos, with_labels=True,
                         labels=poi_cs_labels,  node_color='r', font_color='w')
-    nx.draw_networkx(new_cs_graph, ax=ax2, pos=pos, with_labels=False, 
+    nx.draw_networkx(new_cs_graph, ax=ax2, pos=pos, with_labels=False,
                         node_color='#00b4d9', font_color='w')
 
     # Save image
@@ -230,7 +232,7 @@ if __name__ == '__main__':
     # Run BQM on HSS
     sampler = LeapHybridSampler()
     print("\nRunning scenario on", sampler.solver.id, "solver...")
-    
+
     new_charging_nodes = run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
     # Print results to commnand-line for user
