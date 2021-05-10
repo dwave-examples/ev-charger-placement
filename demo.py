@@ -80,6 +80,9 @@ def set_up_scenario(w, h, num_poi, num_cs):
 
     return G, pois, charging_stations, potential_new_cs_nodes
 
+def distance(a, b):
+    return (a[0]**2 - 2*a[0]*b[0] + b[0]**2) + (a[1]**2 - 2*a[1]*b[1] + b[1]**2)
+
 def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs):
     """ Build bqm that models our problem scenario for the hybrid sampler. """
 
@@ -97,24 +100,17 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     if num_poi > 0:
         for i in range(len(potential_new_cs_nodes)):
             # Compute average distance to POIs from this node
-            avg_dist = 0
             cand_loc = potential_new_cs_nodes[i]
-            for loc in pois:
-                dist = (cand_loc[0]**2 - 2*cand_loc[0]*loc[0] + loc[0]**2
-                                    + cand_loc[1]**2 - 2*cand_loc[1]*loc[1] + loc[1]**2)
-                avg_dist += dist / num_poi
+            avg_dist = sum(distance(cand_loc, loc) for loc in pois) / num_poi
             bqm.linear[i] += avg_dist * gamma1
 
     # Constraint 2: Max distance to existing chargers
     if num_cs > 0:
         for i in range(len(potential_new_cs_nodes)):
             # Compute average distance to POIs from this node
-            avg_dist = 0
             cand_loc = potential_new_cs_nodes[i]
-            for loc in charging_stations:
-                dist = (-1*cand_loc[0]**2 + 2*cand_loc[0]*loc[0] - loc[0]**2
-                                    - cand_loc[1]**2 + 2*cand_loc[1]*loc[1] - loc[1]**2)
-                avg_dist += dist / num_cs
+            avg_dist = -sum(distance(cand_loc, loc)
+                            for loc in charging_stations) / num_cs
             bqm.linear[i] += avg_dist * gamma2
 
     # Constraint 3: Max distance to other new charging locations
@@ -123,8 +119,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
             for j in range(i+1, len(potential_new_cs_nodes)):
                 ai = potential_new_cs_nodes[i]
                 aj = potential_new_cs_nodes[j]
-                dist = (-1*ai[0]**2 + 2*ai[0]*aj[0] - aj[0]**2 - ai[1]**2
-                        + 2*ai[1]*aj[1] - aj[1]**2)
+                dist = -distance(ai, aj)
                 bqm.add_interaction(i, j, dist * gamma3)
 
     # Constraint 4: Choose exactly num_new_cs new charging locations
