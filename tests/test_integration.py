@@ -17,20 +17,23 @@ import subprocess
 import sys
 import unittest
 import random
-import demo
+
 import neal
 import numpy as np
 
+import demo
+
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-class TestDemo(unittest.TestCase):
-
+class TestSmoke(unittest.TestCase):
+    @unittest.skipIf(os.getenv('SKIP_INT_TESTS'), "Skipping integration test.")
     def test_smoke(self):
-        """run demo.py and check that nothing crashes"""
+        """Run demo.py and check that nothing crashes"""
 
         demo_file = os.path.join(project_dir, 'demo.py')
         subprocess.check_output([sys.executable, demo_file])
 
+class TestDemo(unittest.TestCase):
     def test_scenario_setup(self):
 
         w, h = random.randint(10,20), random.randint(10,20)

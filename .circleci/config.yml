@@ -21,6 +21,9 @@ workflows:
                 - master
                 - main
     jobs:
-      - dwave/test-linux
-      - dwave/test-osx
-      - dwave/test-win
+      - dwave/test-linux:
+          integration-tests: "canary"
+      - dwave/test-osx:
+          integration-tests: "skip"
+      - dwave/test-win:
+          integration-tests: "skip"

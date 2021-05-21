@@ -67,7 +67,7 @@ def set_up_scenario(w, h, num_poi, num_cs):
     """ Build scenario set up with specified parameters. """
 
     G = nx.grid_2d_graph(w, h)
-    nodes = G.nodes()
+    nodes = list(G.nodes)
 
     # Identify a fixed set of points of interest
     pois = random.sample(nodes, k=num_poi)
@@ -76,7 +76,7 @@ def set_up_scenario(w, h, num_poi, num_cs):
     charging_stations = random.sample(nodes, k=num_cs)
 
     # Identify potential new charging locations
-    potential_new_cs_nodes = list(nodes - charging_stations)
+    potential_new_cs_nodes = list(G.nodes() - charging_stations)
 
     return G, pois, charging_stations, potential_new_cs_nodes
 
