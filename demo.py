@@ -94,7 +94,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
 
     # Build BQM using adjVectors to find best new charging location s.t. min
     # distance to POIs and max distance to existing charging locations
-    bqm = dimod.AdjVectorBQM(len(potential_new_cs_nodes), 'BINARY')
+    bqm = dimod.BinaryQuadraticModel(len(potential_new_cs_nodes), 'BINARY')
 
     # Constraint 1: Min average distance to POIs
     if num_poi > 0:
