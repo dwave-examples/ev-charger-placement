@@ -66,7 +66,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     q1 = quad_row[dist_mat != 0]
     q3 = dist_mat[dist_mat != 0]
     
-    bqm_np = dimod.BinaryQuadraticModel.from_numpy_vectors(linear = linear, quadratic = (q1, q2, q3), offset=0, vartype=dimod.BINARY)
+    bqm_np = dimod.BinaryQuadraticModel.from_numpy_vectors(linear=linear, quadratic=(q1, q2, q3), offset=0, vartype=dimod.BINARY)
 
     return bqm_np
 
