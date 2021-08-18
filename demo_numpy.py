@@ -19,7 +19,25 @@ from dwave.system import LeapHybridSampler
 import demo
 
 def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs):
-    """ Build bqm that models our problem scenario using NumPy. """
+    """Build bqm that models our problem scenario using NumPy. 
+
+    Args:
+        potential_new_cs_nodes (list of tuples of ints):
+            Potential new charging locations
+        num_poi (int):
+            Number of points of interest
+        pois (list of tuples of ints):
+            A fixed set of points of interest
+        num_cs (int):
+            Number of existing charging stations
+        charging_stations (list of tuples of ints):
+            A fixed set of current charging locations
+        num_new_cs (int):
+            Number of new charging stations desired
+    Returns:
+        bqm_np (BinaryQuadraticModel):
+            QUBO model for the input scenario
+    """
 
     # Tunable parameters
     gamma1 = len(potential_new_cs_nodes) * 4.

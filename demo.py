@@ -64,7 +64,27 @@ def read_in_args():
     return args
 
 def set_up_scenario(w, h, num_poi, num_cs):
-    """ Build scenario set up with specified parameters. """
+    """Build scenario set up with specified parameters.
+    
+    Args:
+        w (int):
+            Width of grid
+        h (int):
+            Height of grid
+        num_poi (int):
+            Number of points of interest
+        num_cs (int):
+            Number of existing charging stations
+    Returns:
+        G (networkx graph):
+            Grid graph of size w by h
+        pois (list of tuples of ints):
+            A fixed set of points of interest
+        charging_stations (list of tuples of ints):
+            A fixed set of current charging locations
+        potential_new_cs_nodes (list of tuples of ints):
+            Potential new charging locations
+    """
 
     G = nx.grid_2d_graph(w, h)
     nodes = list(G.nodes)
@@ -84,7 +104,25 @@ def distance(a, b):
     return (a[0]**2 - 2*a[0]*b[0] + b[0]**2) + (a[1]**2 - 2*a[1]*b[1] + b[1]**2)
 
 def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs):
-    """ Build bqm that models our problem scenario for the hybrid sampler. """
+    """Build bqm that models our problem scenario for the hybrid sampler. 
+
+    Args:
+        potential_new_cs_nodes (list of tuples of ints):
+            Potential new charging locations
+        num_poi (int):
+            Number of points of interest
+        pois (list of tuples of ints):
+            A fixed set of points of interest
+        num_cs (int):
+            Number of existing charging stations
+        charging_stations (list of tuples of ints):
+            A fixed set of current charging locations
+        num_new_cs (int):
+            Number of new charging stations desired
+    Returns:
+        bqm_np (BinaryQuadraticModel):
+            QUBO model for the input scenario
+    """
 
     # Tunable parameters
     gamma1 = len(potential_new_cs_nodes) * 4
@@ -128,7 +166,21 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     return bqm
 
 def run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, **kwargs):
-    """ Solve the bqm with the provided sampler to find new charger locations. """
+    """Solve the bqm with the provided sampler to find new charger locations. 
+    
+    Args:
+        bqm (BinaryQuadraticModel):
+            The QUBO model for the problem instance
+        sampler:
+            Sampler or solver to be used
+        potential_new_cs_nodes (list of tuples of ints):
+            Potential new charging locations
+        **kwargs:
+            Sampler-specific parameters to be used
+    Returns:
+        new_charging_nodes (list of tuples of ints):
+            Locations of new charging stations
+    """
 
     sampleset = sampler.sample(bqm,
                                label='Example - EV Charger Placement',
@@ -140,7 +192,24 @@ def run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, **kwargs
     return new_charging_nodes
 
 def printout_solution_to_cmdline(pois, num_poi, charging_stations, num_cs, new_charging_nodes, num_new_cs):
-    """ Print solution statistics to command line. """
+    """Print solution statistics to command line.
+    
+    Args:
+        pois (list of tuples of ints):
+            A fixed set of points of interest
+        num_poi (int):
+            Number of points of interest
+        charging_stations (list of tuples of ints):
+            A fixed set of current charging locations
+        num_cs (int):
+            Number of existing charging stations
+        new_charging_nodes (list of tuples of ints):
+            Locations of new charging stations
+        num_new_cs (int):
+            Number of new charging stations desired
+    Returns:
+        None.
+    """
 
     print("\nSolution returned: \n------------------")
 
@@ -170,6 +239,18 @@ def save_output_image(G, pois, charging_stations, new_charging_nodes):
             - Red nodes: current charger location
             - Nodes marked 'P': POI locations
             - Blue nodes: new charger locations
+
+    Args:
+        G (networkx graph):
+            Grid graph of size w by h
+        pois (list of tuples of ints):
+            A fixed set of points of interest
+        charging_stations (list of tuples of ints):
+            A fixed set of current charging locations
+        new_charging_nodes (list of tuples of ints):
+            Locations of new charging stations
+    Returns:
+        None. Output saved to file "map.png".
     """
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
