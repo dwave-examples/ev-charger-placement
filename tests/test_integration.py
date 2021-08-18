@@ -19,9 +19,11 @@ import unittest
 import random
 
 import neal
+import dimod
 import numpy as np
 
 import demo
+import demo_numpy
 
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -104,6 +106,20 @@ class TestDemo(unittest.TestCase):
                 new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
 
         self.assertGreater(new_cs_dist, 10)
+
+    def test_same_bqm(self):
+        """Run demo.py and demo_numpy.py with same inputs to check same BQM created."""
+
+        w, h = (random.randint(10,20), random.randint(10,20))
+        num_poi, num_cs, num_new_cs = (random.randint(1,4), random.randint(1,4), random.randint(1,4))
+
+        G, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
+
+        bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
+        bqm_np = demo_numpy.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
+        bqm_np.add_offset(bqm.offset)
+
+        dimod.testing.asserts.assert_bqm_almost_equal(bqm, bqm_np)
 
 if __name__ == '__main__':
     unittest.main()
