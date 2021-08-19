@@ -118,7 +118,7 @@ can be constructed using NumPy arrays and vectors. Utilizing NumPy and matrix
 operations allows for a much faster construction of the BQM than building it
 with for-loops. As problem instances become larger and larger, it becomes more
 and more important to efficiently build the BQM to save time in the
-initilization and setup of the model. The chart below demonstrates the savings
+initialization and setup of the model. The chart below demonstrates the savings
 in classical compute time when setting up the BQM for this problem using
 for-loops versus using efficient NumPy operations in the Leap IDE.
 
