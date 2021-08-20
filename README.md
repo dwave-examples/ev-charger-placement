@@ -111,15 +111,18 @@ problems of a wide-variety of sizes. For more information on setting this
 parameter, see D-Wave's [Problem Formulation
 Guide](https://www.dwavesys.com/practical-quantum-computing-developers).
 
-## Ocean Features
+## Faster BQM Construction
 
-This code example utilizes Ocean's ```AdjVectorBQM``` functionality. For
-smaller problems we can use Python dictionaries to store a BQM. However, for
-large, real-world sized problems, using dictionaries to store the BQM biases
-can become quite slow. Using NumPy arrays instead allows Python to run quickly,
-and is much more efficient on large problems. The Ocean ```AdjVectorBQM```
-functions allow the user to store biases as numpy arrays and load them quickly
-to build a BQM object, suitable for both quantum and hybrid solvers.
+An alternative demo file, `demo_numpy.py`, shows how the BQM for this problem
+can be constructed using NumPy arrays and vectors. Utilizing NumPy and matrix
+operations allows for a much faster construction of the BQM than building it
+with for-loops. As problem instances become larger and larger, it becomes more
+and more important to efficiently build the BQM to save time in the
+initialization and setup of the model. The chart below demonstrates the savings
+in classical compute time when setting up the BQM for this problem using
+for-loops versus using efficient NumPy operations in the Leap IDE.
+
+![Classical comparison](readme_imgs/runtimes.png "Classical Runtime Comparison")
 
 ## References
 
