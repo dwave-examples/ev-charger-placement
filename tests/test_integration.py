@@ -111,7 +111,7 @@ class TestDemo(unittest.TestCase):
         """Run demo.py and demo_numpy.py with same inputs to check same BQM created."""
 
         w, h = (random.randint(10,20), random.randint(10,20))
-        num_poi, num_cs, num_new_cs = (random.randint(2,4), random.randint(2,4), random.randint(2,4))
+        num_poi, num_cs, num_new_cs = (random.randint(1,4), random.randint(1,4), random.randint(2,4))
 
         G, pois, charging_stations, potential_new_cs_nodes = demo.set_up_scenario(w, h, num_poi, num_cs)
 

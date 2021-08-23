@@ -74,6 +74,9 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
                     + np.sum(np.square(nodes_array), axis=1)).astype(float) 
                     + np.sum(np.square(nodes_array), axis=1).reshape(-1,1).astype(float))
 
+    else:
+        dist_mat = np.zeros((len(potential_new_cs_nodes),len(potential_new_cs_nodes)))
+
     # Constraint 4: Choose exactly num_new_cs new charging locations
     linear += (1-2*num_new_cs)*gamma4
     dist_mat += 2*gamma4
