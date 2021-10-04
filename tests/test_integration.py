@@ -117,7 +117,7 @@ class TestDemo(unittest.TestCase):
 
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
         bqm_np = demo_numpy.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
-        bqm_np.add_offset(bqm.offset)
+        bqm_np.offset += bqm.offset
 
         dimod.testing.asserts.assert_bqm_almost_equal(bqm, bqm_np)
 
