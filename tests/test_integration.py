@@ -17,10 +17,12 @@ import subprocess
 import sys
 import unittest
 import random
+import math
 
-import neal
 import dimod
 import numpy as np
+from dwave.samplers import SimulatedAnnealingSampler
+from dwave.system import LeapHybridSampler
 
 import demo
 import demo_numpy
@@ -58,7 +60,7 @@ class TestDemo(unittest.TestCase):
 
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
-        sampler = neal.SimulatedAnnealingSampler()
+        sampler = SimulatedAnnealingSampler()
         new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
         self.assertEqual(num_new_cs, len(new_charging_nodes))
@@ -77,8 +79,8 @@ class TestDemo(unittest.TestCase):
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
         # random.seed(1)
-        sampler = neal.SimulatedAnnealingSampler()
-        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, seed=42)
+        sampler = LeapHybridSampler()
+        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
         new_cs_x = new_charging_nodes[0][0]
         new_cs_y = new_charging_nodes[0][1]
@@ -97,13 +99,10 @@ class TestDemo(unittest.TestCase):
         bqm = demo.build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, num_new_cs)
 
         # random.seed(1)
-        sampler = neal.SimulatedAnnealingSampler()
-        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes, seed=1)
+        sampler = LeapHybridSampler()
+        new_charging_nodes = demo.run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
-        new_cs_dist = 0
-        for i in range(num_new_cs):
-            for j in range(i+1, num_new_cs):
-                new_cs_dist += abs(new_charging_nodes[i][0]-new_charging_nodes[j][0])+abs(new_charging_nodes[i][1]-new_charging_nodes[j][1])
+        new_cs_dist = math.sqrt(demo.distance(new_charging_nodes[0], new_charging_nodes[1]))
 
         self.assertGreater(new_cs_dist, 10)
 
