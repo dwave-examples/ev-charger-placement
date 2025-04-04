@@ -117,10 +117,11 @@ program will prefer locations that are far apart.
 ### Build exactly two new charging stations
 
 To select exactly two new charging stations, we use
-[`dimod.generators.combinations`](https://docs.dwavequantum.com/en/latest/ocean/api_ref_dimod/generated/dimod.generators.combinations.html). This function in Ocean's `dimod` package
-sets exactly `num_new_cs` of our binary variables (`bqm.variables`) to have a
-value of 1, and applies a strength to this constraint (`gamma4`). See below for
-more information on the tunable strength parameter.
+[`dimod.generators.combinations`](https://docs.dwavequantum.com/en/latest/ocean/api_ref_dimod/generated/dimod.generators.combinations.html).
+This function in Ocean's `dimod` package sets exactly `num_new_cs` of our binary
+variables (`bqm.variables`) to have a value of 1, and applies a strength to this
+constraint (`gamma4`). See below for more information on the tunable strength
+parameter.
 
 ### Parameter tuning
 
@@ -149,4 +150,7 @@ for-loops versus using efficient NumPy operations in the Leap IDE.
 
 ## References
 
-<a name="1">[1]</a> Pagany, Raphaela, Anna Marquardt, and Roland Zink. "Electric Charging Demand Location Model—A User-and Destination-Based Locating Approach for Electric Vehicle Charging Stations." Sustainability 11.8 (2019): 2301. [https://doi.org/10.3390/su11082301](https://doi.org/10.3390/su11082301)
+<a name="1">[1]</a> Pagany, Raphaela, Anna Marquardt, and Roland Zink. "Electric
+Charging Demand Location Model—A User-and Destination-Based Locating Approach
+for Electric Vehicle Charging Stations." Sustainability 11.8 (2019): 2301.
+[https://doi.org/10.3390/su11082301](https://doi.org/10.3390/su11082301)
