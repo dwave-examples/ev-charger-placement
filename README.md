@@ -97,7 +97,7 @@ program will prefer locations that are far apart.
 ### Build exactly two new charging stations
 
 To select exactly two new charging stations, we use
-[`dimod.generators.combinations`](https://docs.ocean.dwavesys.com/en/stable/docs_dimod/reference/generated/dimod.generators.combinations.html?highlight=%22dimod.generators.combinations%22). This function in Ocean's `dimod` package
+[`dimod.generators.combinations`](https://docs.dwavequantum.com/en/latest/ocean/api_ref_dimod/generated/dimod.generators.combinations.html). This function in Ocean's `dimod` package
 sets exactly `num_new_cs` of our binary variables (`bqm.variables`) to have a
 value of 1, and applies a strength to this constraint (`gamma4`). See below for
 more information on the tunable strength parameter.
