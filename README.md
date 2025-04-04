@@ -14,7 +14,27 @@ quantity to build, etc. In this example, we take a look at how we might
 formulate this optimization problem and solve it using D-Wave's binary
 quadratic model (BQM) hybrid solver.
 
+## Installation
+
+You can run this example without installation in cloud-based IDEs that support
+the [Development Containers specification](https://containers.dev/supporting)
+(aka "devcontainers").
+
+For development environments that do not support ``devcontainers``, install
+requirements:
+
+    pip install -r requirements.txt
+
+If you are cloning the repo to your local system, working in a
+[virtual environment](https://docs.python.org/3/library/venv.html) is
+recommended.
+
 ## Usage
+
+Your development environment should be configured to
+[access Leap’s Solvers](https://docs.dwavequantum.com/en/latest/ocean/sapi_access_basic.html).
+You can see information about supported IDEs and authorizing access to your Leap
+account [here](https://docs.dwavequantum.com/en/latest/leap_sapi/dev_env.html).
 
 To run the demo, type the command:
 
