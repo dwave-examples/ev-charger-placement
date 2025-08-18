@@ -36,6 +36,13 @@ class TestSmoke(unittest.TestCase):
         demo_file = os.path.join(project_dir, 'demo.py')
         subprocess.check_output([sys.executable, demo_file])
 
+    @unittest.skipIf(os.getenv('SKIP_INT_TESTS'), "Skipping integration test.")
+    def test_smoke_np(self):
+        """Run demo_numpy.py and check that nothing crashes"""
+
+        demo_file = os.path.join(project_dir, 'demo_numpy.py')
+        subprocess.check_output([sys.executable, demo_file])
+
 class TestDemo(unittest.TestCase):
     def test_scenario_setup(self):
 
