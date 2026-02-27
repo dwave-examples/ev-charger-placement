@@ -292,7 +292,7 @@ if __name__ == '__main__':
 
     # Run BQM on HSS
     sampler = LeapHybridSampler()
-    print("\nRunning scenario on", sampler.solver.identity, "solver...")
+    print("\nRunning scenario on", sampler.solver.name, "solver...")
 
     new_charging_nodes = run_bqm_and_collect_solutions(bqm, sampler, potential_new_cs_nodes)
 
