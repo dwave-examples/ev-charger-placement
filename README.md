@@ -65,7 +65,7 @@ randomly generated scenario.
 - `-p`: set the number of POIs on the grid. Default: 3.
 - `-c`: set the number of existing charging stations on the grid. Default: 4.
 - `-n`: set the number of new charging stations to be placed. Default: 2.
-- `-s`: set a random seed so that specific senarios can be repeated.
+- `-s`: set a random seed so that specific scenarios can be repeated.
 
 Any combination of these options may be used. For example:
 
