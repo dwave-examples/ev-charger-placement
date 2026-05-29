@@ -125,7 +125,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     # distance to POIs and max distance to existing charging locations
     bqm = dimod.BinaryQuadraticModel(len(potential_new_cs_nodes), 'BINARY')
 
-    # Constraint 1: Min average distance to POIs
+    # Objective 1: Min average distance to POIs
     if num_poi > 0:
         for i in range(len(potential_new_cs_nodes)):
             # Compute average distance to POIs from this node
@@ -133,7 +133,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
             avg_dist = sum(distance(cand_loc, loc) for loc in pois) / num_poi
             bqm.linear[i] += avg_dist * gamma1
 
-    # Constraint 2: Max distance to existing chargers
+    # Objective 2: Max distance to existing chargers
     if num_cs > 0:
         for i in range(len(potential_new_cs_nodes)):
             # Compute average distance to POIs from this node
@@ -142,7 +142,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
                             for loc in charging_stations) / num_cs
             bqm.linear[i] += avg_dist * gamma2
 
-    # Constraint 3: Max distance to other new charging locations
+    # Objective 3: Max distance to other new charging locations
     if num_new_cs > 1:
         for i in range(len(potential_new_cs_nodes)):
             for j in range(i+1, len(potential_new_cs_nodes)):
@@ -151,7 +151,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
                 dist = -distance(ai, aj)
                 bqm.add_interaction(i, j, dist * gamma3)
 
-    # Constraint 4: Choose exactly num_new_cs new charging locations
+    # Constraint: Choose exactly num_new_cs new charging locations
     bqm.update(dimod.generators.combinations(bqm.variables, num_new_cs, strength=gamma4))
 
     return bqm
