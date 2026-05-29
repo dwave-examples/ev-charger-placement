@@ -49,7 +49,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     pois_array = np.asarray(pois)
     cs_array = np.asarray(charging_stations)
 
-    # Constraint 1: Min average distance to POIs
+    # Objective 1: Min average distance to POIs
     if num_poi > 0:
 
         ct_matrix = (np.matmul(nodes_array, pois_array.T)*(-2.) 
@@ -58,7 +58,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
 
         linear += np.sum(ct_matrix, axis=1) / num_poi * gamma1
 
-    # Constraint 2: Max distance to existing chargers
+    # Objective 2: Max distance to existing chargers
     if num_cs > 0:    
 
         dist_mat = (np.matmul(nodes_array, cs_array.T)*(-2.) 
@@ -67,7 +67,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
 
         linear += -1 * np.sum(dist_mat, axis=1) / num_cs * gamma2 
 
-    # Constraint 3: Max distance to other new charging locations
+    # Objective 3: Max distance to other new charging locations
     if num_new_cs > 1:
 
         dist_mat = -gamma3*((np.matmul(nodes_array, nodes_array.T)*(-2.) 
@@ -77,7 +77,7 @@ def build_bqm(potential_new_cs_nodes, num_poi, pois, num_cs, charging_stations, 
     else:
         dist_mat = np.zeros((len(potential_new_cs_nodes),len(potential_new_cs_nodes)))
 
-    # Constraint 4: Choose exactly num_new_cs new charging locations
+    # Constraint: Choose exactly num_new_cs new charging locations
     linear += (1-2*num_new_cs)*gamma4
     dist_mat += 2*gamma4
     dist_mat = np.triu(dist_mat, k=1).flatten()
